@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+
+import re
+import os
+import sys
+import json
+
+import hgapi
+import requests
+
+
+repo = hgapi.Repo(".")
+
+hgweb_url = repo.config("mattermost", "hgweb_url")
+webhook_url = repo.config("mattermost", "webhook_url")
+icon_url = repo.config("mattermost", "icon_url")
+username = repo.config("mattermost", "username")
+
+if webhook_url is None:
+    print("warning: missing webhook url in the [mattermost] section")
+    sys.exit(1)
+
+rev = repo.revision(os.getenv("HG_NODE"))
+repo_name = os.path.basename(os.path.abspath("."))
+message = re.sub(r"^", "> ", rev.desc, flags=re.MULTILINE)
+
+if hgweb_url:
+    changeset = "[{changeset}]({hgweb}/{repo}/rev/{changeset})".format(
+        hgweb=hgweb_url,
+        repo=repo_name,
+        changeset=rev.node[:12],
+    )
+else:
+    changeset = rev.node[:12]
+
+text = (
+    "{author} committed {changeset} on **{repo}:{branch}**:\n"
+    "{message}"
+).format(
+    author=rev.author,
+    changeset=changeset,
+    repo=repo_name,
+    branch=rev.branch,
+    message=message,
+).strip()
+
+payload = {}
+if icon_url:
+    payload["icon_url"] = icon_url
+if username:
+    payload["username"] = username
+payload["text"] = text
+
+headers = {"Content-type": "application/json", "Accept": "text/plain"}
+
+requests.post(webhook_url, headers=headers,
+              data=json.dumps(payload))
