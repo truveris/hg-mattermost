@@ -14,6 +14,7 @@ then you need to add the following to your repository's `hgrc` file::
     incoming.mattermost = hg-mattermost
 
     [mattermost]
+    hgweb_url = https://hg.example.com
     username = Mercurial
     webhook_url = https://mattermost.example.com/hooks/q9w8jq9wdw89sd7agf7sq7qweh
     icon_url = https://s3.amazonaws.com/truveris-mattermost-icons/mercurial.png
