@@ -15,6 +15,7 @@ hgweb_url = repo.config("mattermost", "hgweb_url")
 webhook_url = repo.config("mattermost", "webhook_url")
 icon_url = repo.config("mattermost", "icon_url")
 username = repo.config("mattermost", "username")
+skip_merges = repo.config("mattermost", "skip_merges") == "true"
 
 if webhook_url is None:
     print("warning: missing webhook url in the [mattermost] section")
@@ -23,6 +24,10 @@ if webhook_url is None:
 rev = repo.revision(os.getenv("HG_NODE"))
 repo_name = os.path.basename(os.path.abspath("."))
 message = re.sub(r"^", "> ", rev.desc, flags=re.MULTILINE)
+
+# Hide
+if skip_merges and len(rev.parents) > 1:
+    sys.exit(0)
 
 if hgweb_url:
     changeset = "[{changeset}]({hgweb}/{repo}/rev/{changeset})".format(
