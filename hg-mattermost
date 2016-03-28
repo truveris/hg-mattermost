@@ -30,7 +30,7 @@ if skip_merges and len(rev.parents) > 1:
     sys.exit(0)
 
 if hgweb_url:
-    changeset = "[{changeset}]({hgweb}/{repo}/rev/{changeset})".format(
+    changeset = u"[{changeset}]({hgweb}/{repo}/rev/{changeset})".format(
         hgweb=hgweb_url,
         repo=repo_name,
         changeset=rev.node[:12],
@@ -39,8 +39,8 @@ else:
     changeset = rev.node[:12]
 
 text = (
-    "{author} committed {changeset} on **{repo}:{branch}**:\n"
-    "{message}"
+    u"{author} committed {changeset} on **{repo}:{branch}**:\n"
+    u"{message}"
 ).format(
     author=rev.author,
     changeset=changeset,
